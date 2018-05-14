@@ -30,4 +30,4 @@ def timeout(sock, user, secs=600):
     chat(sock, ".timeout {}".format(user, secs))
 
 def test(sock, user):
-    chat(sock, "{} said test".format(user))
+    chat(sock, "{} said something".format(user))

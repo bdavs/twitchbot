@@ -27,11 +27,14 @@ def bot_loop():
         else:
             username = re.search(r"\w+", response).group(0) 
             message = CHAT_MSG.sub("", response)
-            print(username + ": " + response)
+            #print(username + ": " + response)
+            print(username + ": " + message)
             for pattern in config.BAN_PAT:
                 if re.match(pattern, message):
+                    print("matched pattern")
+                    #utility.chat(s,"if this prints out, I am communicating with chat properly")
                     #utility.ban(s, username)
-                    utility.test(s, username)
+                    #utility.test(s, username)
                     break
         time.sleep(1 / config.RATE)
 if __name__ == "__main__":
