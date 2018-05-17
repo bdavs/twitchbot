@@ -30,7 +30,7 @@ try:
 except Exception as e:
     print(str(e))
     connected = False #Socket failed to connect
-
+    print("Failed to connected to twitch irc")
 def bot_loop(widget):
     while connected:
         response = s.recv(1024).decode("utf-8")
@@ -39,26 +39,56 @@ def bot_loop(widget):
             s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
             print("Pong")
         else:
+            #actually parse the data
             data = utility.parse_msg(response)
             if data:
                 #print(str(data))
                 #username = re.search(r"\w+", response).group(0)
                 #message = CHAT_MSG.sub("", response)
-                final_message = data['user'] + ": " + data['message']
-                for pattern in config.SEARCH_PAT:
-    #                if username == "bdavs77":
-                    if re.search(pattern, data['message']):
-    #                    print("matched pattern: " + final_message)
-                        widget.write(final_message)
-                        #utility.chat(s,"if this prints out, I am communicating with chat properly")
-                        break
+                #final_message = data['user'] + ": " + data['message']
+
+                #check if someone sent bits or subbed
+                if 'bits' in data['meta']:
+                    somebits = int(data['meta']['bits']) - 7
+                    if somebits > 0:
+                        addon = "\nThat's like " + str(somebits) + " more than 7!"
                     else:
-                        print("No match: ") # + final_message)
+                        addon = ""
+                    final_message = data['user'] + " just sent " + data['meta']['bits'] + " bits!" + addon
+                    print(final_message)
+                    widget.write(final_message)
+                if 'msg-id' in data['meta']:
+                    if data['meta']['msg-id'] == "sub":
+                        final_message = data['user'] + " just subscribed!\nSay what?!?!"
+                        print(final_message)
+                        widget.write(final_message)
+                    elif data['meta']['msg-id'] == "resub":
+                        final_message = data['user'] + " just resubscribed for their "+ data['meta']['msg-param-months'] + " month!\nThat's commitment!"
+                        print(final_message)
+                        widget.write(final_message)
+                    elif data['meta']['msg-id'] == "subgift":
+                        final_message = data['user'] + " just gifted a subscription to " + data['meta']['msg-param-recipient-user-name'] + "!\nThank you!"
+                        print(final_message)
+                        widget.write(final_message)
+                    else:
+                        print("error: different msg-id: " + data['meta']['msg-id'])
+
+                #for pattern in config.SEARCH_PAT:
+    #                if username == "bdavs77":
+                 #   if re.search(pattern, data['message']):
+    #                    print("matched pattern: " + final_message)
                         #widget.write(final_message)
+                        #utility.chat(s,"if this prints out, I am communicating with chat properly")
+                  #      break
+                   # else:
+                    #    print("No match: ") # + final_message)
+                        #widget.write(final_message)
+
         time.sleep(1 / config.RATE)
+
 def log(text):
     printstr = str(datetime.datetime.now()) + ": " + text
-    print(printstr)
+#    print(printstr)
     w.write(printstr)
     w.flush()
 class myThread (threading.Thread):
@@ -82,8 +112,8 @@ class MainApplication(tk.Frame):
         self.parent = parent
         self.queue = queue.Queue()
         self.labelText=StringVar()
-        self.labelText.set("Event")
-
+#        self.labelText.set("Welcome to the bdavs stream!")
+        self.labelText.set("Testing!")
     def display(self):
         #set up variables
         self.x=0

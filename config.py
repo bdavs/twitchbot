@@ -6,7 +6,8 @@ PASS = "oauth:hk62g8etd3t44q5trcee9ggztiq4i2" # your Twitch OAuth token
 #CHAN = "#bdavs77"
 #CHAN = "#accidentalgrenade"                   # the channel you want the bot to join.
 #CHAN = "#huttsgaming"
-CHAN = "#magnusrayneg4l"
+#CHAN = "#magnusrayneg4l"
+CHAN = "#chinoxg4l"
 RATE = (20/30) # messages per seccond
 SEARCH_PAT = [
     r"test"
