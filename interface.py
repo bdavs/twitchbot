@@ -14,6 +14,7 @@ import socket
 import time
 import re
 
+#response =  {'meta':meta, 'user':user, 'msgtype':msgtype, 'channel':channel, 'message':message}
 CHAT_MSG = re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
 w = open('logfile.txt', 'w+')
 try:
@@ -34,6 +35,7 @@ except Exception as e:
 def bot_loop(widget):
     while connected:
         response = s.recv(1024).decode("utf-8")
+        #log everything currently
         log(response)
         if response == "PING :tmi.twitch.tv\r\n":
             s.send("PONG :tmi.twitch.tv\r\n".encode("utf-8"))
@@ -54,7 +56,7 @@ def bot_loop(widget):
                         addon = "\nThat's like " + str(somebits) + " more than 7!"
                     else:
                         addon = ""
-                    final_message = data['user'] + " just sent " + data['meta']['bits'] + " bits!" + addon
+                    final_message = data['user'] + " just sent " + data['meta']['bits'] + " bits!" + addon + "/n" + data['message']
                     print(final_message)
                     widget.write(final_message)
                 if 'msg-id' in data['meta']:
@@ -73,6 +75,13 @@ def bot_loop(widget):
                     else:
                         print("error: different msg-id: " + data['meta']['msg-id'])
 
+#                if data['user'] == "bdavs77" and data['msgtype'] == "PRIVMSG":
+                if (data['meta']['mod'] == 1 or data['user'] == data['channel'][1:]) and data['msgtype'] == "PRIVMSG":
+                    if re.search(config.MOD_COMMAND, data['message']):
+                        message = re.sub(config.MOD_COMMAND,"", data['message'])
+                        final_message = data['user'] + ": " + message #data['message']
+                        print(final_message)
+                        widget.write(final_message)
                 #for pattern in config.SEARCH_PAT:
     #                if username == "bdavs77":
                  #   if re.search(pattern, data['message']):
@@ -114,6 +123,7 @@ class MainApplication(tk.Frame):
         self.labelText=StringVar()
 #        self.labelText.set("Welcome to the bdavs stream!")
         self.labelText.set("Testing!")
+        self.timeout = 0
     def display(self):
         #set up variables
         self.x=0
@@ -168,20 +178,26 @@ class MainApplication(tk.Frame):
         try:
             while 1:
                 line = self.queue.get_nowait()
-                #print("got some text: " + line)
                 if line is None:
                     continue
                 else:
                     self.labelText.set(line)
-
+                    self.timeout = 0
         except queue.Empty:
-            #print("empty")
             pass
+
         self.after(10, self.bounce)
-        self.after(10, self.refresh)
+
+        #only leave message up for certain time
+        if self.timeout > config.TIMEOUT:
+            self.labelText.set("")
+            self.timeout = 0
+            self.after(10, self.refresh)
+        else:
+            self.timeout += 1
+            self.after(10, self.refresh)
 
     def write(self,text):
-        #print("In write func: " + text)
         self.queue.put(text)
 
     def shift(self, text):
