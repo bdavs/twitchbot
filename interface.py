@@ -130,7 +130,8 @@ class MainApplication(tk.Frame):
         self.y=0
         self.forward = 1
         self.down = 1
-        headerFont = tkFont.Font(root=disproot,size=24, weight='bold', underline=False)
+        headerFont = tkFont.Font(root=disproot,size=config.FONT_SIZE, 
+weight='bold', underline=False)
 
         #set up window
         disproot.title("Events")
@@ -138,12 +139,13 @@ class MainApplication(tk.Frame):
             disproot.attributes("-zoomed",True)
         else:
             disproot.attributes("-fullscreen",True)
-        disproot.configure(background='blue')
-        self.canvas = tk.Canvas(disproot, bg="blue")
+        disproot.configure(background=config.BG)
+        self.canvas = tk.Canvas(disproot, bg=config.BG)
         self.canvas.pack(expand=YES, fill=BOTH)
 
         #set up text and canvas
-        self.header=Label(self.canvas, textvariable=self.labelText, fg='white', bg='blue',font=headerFont)
+        self.header=Label(self.canvas, textvariable=self.labelText,
+        fg=config.FG, bg=config.BG,font=headerFont)
         self.header.pack()
         self.hwindow = self.canvas.create_window(self.x,self.y, anchor='nw', window=self.header)
         self.canvas.update()
@@ -186,16 +188,16 @@ class MainApplication(tk.Frame):
         except queue.Empty:
             pass
 
-        self.after(10, self.bounce)
+        self.after(config.REFRESH, self.bounce)
 
         #only leave message up for certain time
         if self.timeout > config.TIMEOUT:
             self.labelText.set("")
             self.timeout = 0
-            self.after(10, self.refresh)
         else:
             self.timeout += 1
-            self.after(10, self.refresh)
+
+        self.after(config.REFRESH, self.refresh)
 
     def write(self,text):
         self.queue.put(text)

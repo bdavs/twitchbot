@@ -17,7 +17,12 @@ SEARCH_PAT = [
 MOD_COMMAND = r"!setmessage"
 
 #interface config
-SPEEDX = 5
-SPEEDY = 5
+SPEEDX = 2
+SPEEDY = 2
 RPI = 0
 TIMEOUT = 1000
+FONT_SIZE = 22
+BG = "green"
+FG = "white"
+#FG = '#FF0000'
+REFRESH = 10
